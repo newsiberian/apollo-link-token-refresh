@@ -26,7 +26,7 @@ Token Refresh Link takes an object with four options on it to customize the beha
 
 |name|value|default|required|explanation|
 |---|---|---|:---:|---|
-|accessTokenField|string|access_token||This is a name of access token field in response
+|accessTokenField|string|'access_token'||This is a name of access token field in response
 |isTokenValidOrUndefined|(...args: any[]) => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
 |fetchAccessToken|(...args: any[]) => Promise<Response>||✓|Function covers fetch call with request fresh access token|
 |handleFetch|(accessToken: string) => void||✓|Callback which receives a fresh token from Response. From here we can save token to the storage|
