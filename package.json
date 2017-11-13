@@ -12,7 +12,7 @@
     "bundle": "rollup -c",
     "clean": "rimraf lib/* && rimraf coverage/*",
     "filesize": "npm run build && npm run build:browser",
-    "lint": "tslint --type-check -p tsconfig.json -c ../../tslint.json src/*.ts",
+    "lint": "tslint -p tsconfig.json -c tslint.json src/*.ts",
     "minify:browser": "uglifyjs -c -m -o ./lib/bundle.min.js -- ./lib/bundle.js",
     "postbuild": "npm run bundle",
     "prebuild": "npm run clean",
@@ -24,7 +24,7 @@
     "apollo-link",
     "jwt"
   ],
-  "author": "Akiyakov Denis <newsiberian2015@yandex.ru>",
+  "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "peerDependencies": {
     "apollo-link": "^1.0.0"
@@ -32,13 +32,13 @@
   "devDependencies": {
     "@types/graphql": "0.11.5",
     "@types/jest": "21.1.5",
+    "@types/zen-observable": "^0.5.3",
     "apollo-link": "^1.0.0",
     "browserify": "14.5.0",
-    "fetch-mock": "5.13.1",
     "graphql": "0.11.7",
     "graphql-tag": "2.5.0",
     "jest": "21.2.1",
-    "jest-fetch-mock": "1.3.3",
+    "jest-fetch-mock": "^1.3.3",
     "proxyquire": "1.8.0",
     "rimraf": "2.6.1",
     "rollup": "0.51.3",

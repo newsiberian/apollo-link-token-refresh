@@ -7,13 +7,15 @@ import {
 } from 'apollo-link';
 import gql from 'graphql-tag';
 import { print } from 'graphql/language/printer';
-import { mockResponse } from 'jest-fetch-mock';
+import { mockResponse, mockRejectOnce } from 'jest-fetch-mock';
 
 import {
   TokenRefreshLink,
   OperationQueuing,
   QueuedRequest,
 } from '../tokenRefreshLink';
+
+const fetch = require('jest-fetch-mock');
 
 interface MockedResponse {
   request: Operation;
@@ -22,7 +24,8 @@ interface MockedResponse {
   delay?: number;
 }
 
-// const MockedNewTokenResponse = () =>
+const mockedNewTokenResponse = () =>
+  fetch.mockResponse(JSON.stringify({ access_token: '12345' }));
 
 function requestToKey(request: Operation): string {
   const queryString =
@@ -33,6 +36,20 @@ function requestToKey(request: Operation): string {
     query: queryString,
   });
 }
+
+const sampleQuery = gql`
+  query SampleQuery {
+    stub {
+      id
+    }
+  }
+`;
+
+const mockLink = new ApolloLink(() => {
+  return new Observable(() => {
+    throw new Error('This is mocked link');
+  });
+});
 
 describe('TokenRefreshLink', () => {
   it('need constructor arguments', () => {
@@ -51,37 +68,64 @@ describe('TokenRefreshLink', () => {
     ).not.toThrow();
   });
 
-  it('passes forward on', () => {
-    /*fetch.*/mockResponse(JSON.stringify({access_token: '12345' }));
+  it('should throw an exception if link is the last in composed chain', () => {
     const link = ApolloLink.from([
       new TokenRefreshLink({
         isTokenValidOrUndefined: () => false,
-        fetchAccessToken: () => fetch('localhost'),
+        fetchAccessToken: () => fetch('http://localhost'),
+        handleFetch: () => void 0
+      })
+    ]);
+
+    expect(
+      execute(link, {
+        query: sampleQuery
+      }),
+      done()
+    ).toThrow();
+  });
+
+  it('passes forward on', () => {
+    const link = ApolloLink.from([
+      new TokenRefreshLink({
+        // token is valid, so we are passing forward immediately
+        isTokenValidOrUndefined: () => true,
+        fetchAccessToken: () => fetch('http://localhost'),
+        handleFetch: () => void 0
+      }),
+      mockLink
+    ]);
+    execute(link, {
+      query: sampleQuery
+    });
+  });
+
+  it('should throw an exception if it was thrown inside the promise', () => {
+    fetch.mockResponse(JSON.stringify({ bad_token: '12345' }));
+    const link = ApolloLink.from([
+      new TokenRefreshLink({
+        isTokenValidOrUndefined: () => false,
+        fetchAccessToken: () => fetch('http://localhost'),
         handleFetch: () => void 0
       }),
     ]);
-    execute(link, {
-      query: gql`
-        {
-          id
-        }
-      `,
-    });
-
-
+    expect(
+      execute(link, {
+        query: sampleQuery
+      })
+    ).toThrow();
   });
+
+  // it('should allow fetch to REST endpoint and to apollo-server endpoint', () => {
+  //
+  // });
 });
 
 describe('OperationQueuing', () => {
   it('should be able to add to the queue', () => {
     const queue = new OperationQueuing();
-    const query = gql`
-      query {
-        id
-      }
-    `;
     const request: QueuedRequest = {
-      operation: { query },
+      operation: { sampleQuery },
     };
 
     expect(queue.queuedRequests.length).toBe(0);
@@ -104,25 +148,10 @@ describe('request queue', () => {
   const data = {
     author: {
       firstName: 'John',
-      lastName: 'Smith',
+      lastName: 'Smith'
     },
   };
   const operation: Operation = {
-    query,
+    query
   };
-
-  it('should be able to consume from a queue containing a single query', done => {
-    const queue = new OperationQueuing();
-
-    queue.enqueueRequest({ operation }).subscribe(resultObj => {
-      expect(queue.queuedRequests.length).toBe(0);
-      expect(resultObj).toEqual({ data });
-      done();
-    });
-    const observables: (
-      | Observable<FetchResult>
-      | undefined)[] = queue.consumeQueue()!;
-
-    expect(observables.length).toBe(1);
-  });
 });
