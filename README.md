@@ -14,10 +14,10 @@ Token Refresh Link is `non-terminating` link, which means that this link shouldn
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 
 const link = new TokenRefreshLink({
-	accessTokenField: 'accessToken',
-	isTokenValidOrUndefined: () => boolean,
-	fetchAccessToken: () => Promise<Response>,
-	handleFetch: (accessToken: string) => void
+  accessTokenField: 'accessToken',
+  isTokenValidOrUndefined: () => boolean,
+  fetchAccessToken: () => Promise<Response>,
+  handleFetch: (accessToken: string) => void
 });
 ```
 
@@ -36,26 +36,26 @@ Token Refresh Link takes an object with four options on it to customize the beha
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 
 link: ApolloLink.from([
-	new TokenRefreshLink({
-		isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string'
-		fetchAccessToken: () => {
-			return fetch(getEndpoint('getAccessTokenPath'), {
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${getAccessToken()}`,
-					'refresh-token': getRefreshToken()
-				}
-			});
-		}
-		handleFetch: accessToken => {
-			const accessTokenDecrypted = jwtDecode(accessToken);
-			setAccessToken(accessToken);
-			setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
-		}
-	}),
-	errorLink,
-	requestLink,
-	...
+  new TokenRefreshLink({
+    isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string'
+    fetchAccessToken: () => {
+      return fetch(getEndpoint('getAccessTokenPath'), {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${getAccessToken()}`,
+          'refresh-token': getRefreshToken()
+        }
+      });
+    }
+    handleFetch: accessToken => {
+      const accessTokenDecrypted = jwtDecode(accessToken);
+      setAccessToken(accessToken);
+      setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
+    }
+  }),
+  errorLink,
+  requestLink,
+  ...
 ])
 ```
 
