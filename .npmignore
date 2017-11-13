@@ -6,3 +6,4 @@ tests/
 tsconfig.json
 tslint.json
 typings.d.ts
+yarn.lock
