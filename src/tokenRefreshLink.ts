@@ -54,7 +54,7 @@ export class TokenRefreshLink extends ApolloLink {
 
     if (!this.fetching) {
       this.fetching = true;
-      return this.fetchAccessToken()
+      this.fetchAccessToken()
         .then(res => {
           const json = res.json();
           if (res.ok) {
