@@ -3,9 +3,17 @@
   "version": "0.0.2",
   "description": "Apollo Link that performs access tokens renew",
   "main": "./lib/bundle.umd.js",
-  "module": "./lib/refreshTokenLink.js",
-  "jsnext:main": "./lib/refreshTokenLink.js",
-  "typings": "./lib/batchLink.d.ts",
+  "module": "./lib/tokenRefreshLink.js",
+  "jsnext:main": "./lib/tokenRefreshLink.js",
+  "typings": "./lib/tokenRefreshLink.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/newsiberian/apollo-link-token-refresh.git"
+  },
+  "bugs": {
+    "url": "https://github.com/newsiberian/apollo-link-token-refresh/issues"
+  },
+  "homepage": "https://github.com/newsiberian/apollo-link-token-refresh#readme",
   "scripts": {
     "build:browser": "browserify ./lib/bundle.umd.js -o=./lib/bundle.js --i apollo-link && npm run minify:browser",
     "build": "tsc -p .",
