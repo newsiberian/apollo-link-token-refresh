@@ -25,10 +25,10 @@ const link = new TokenRefreshLink({
 Token Refresh Link takes an object with four options on it to customize the behavior of the link
 
 |name|value|default|required|explanation|
-|---|---|---|---|---|
+|---|---|---|:---:|---|
 |accessTokenField|string|access_token||This is a name of access token field in response
-|isTokenValidOrUndefined|() => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
-|fetchAccessToken|() => Promise<Response>||✓|Function covers fetch call with request fresh access token|
+|isTokenValidOrUndefined|(...args: any[]) => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
+|fetchAccessToken|(...args: any[]) => Promise<Response>||✓|Function covers fetch call with request fresh access token|
 |handleFetch|(accessToken: string) => void||✓|Callback which receives a fresh token from Response. From here we can save token to the storage|
 
 ## Example
@@ -36,26 +36,27 @@ Token Refresh Link takes an object with four options on it to customize the beha
 import { TokenRefreshLink } from 'apollo-link-token-refresh';
 
 link: ApolloLink.from([
-    new TokenRefreshLink({
-    	isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string'
-    	fetchAccessToken: () => {
-				return fetch(getEndpoint('getAccessTokenPath'), {
-					method: 'GET',
-					headers: {
-						Authorization: `Bearer ${getAccessToken()}`,
-						'refresh-token': getRefreshToken()
-					}
-				});
-			}
-    	handleFetch: accessToken => {
-				const accessTokenDecrypted = jwtDecode(accessToken);
-				setAccessToken(accessToken);
-				setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
-			}
-    }),
-    errorLink,
-		requestLink({
-		...
+	new TokenRefreshLink({
+		isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string'
+		fetchAccessToken: () => {
+			return fetch(getEndpoint('getAccessTokenPath'), {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${getAccessToken()}`,
+					'refresh-token': getRefreshToken()
+				}
+			});
+		}
+		handleFetch: accessToken => {
+			const accessTokenDecrypted = jwtDecode(accessToken);
+			setAccessToken(accessToken);
+			setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
+		}
+	}),
+	errorLink,
+	requestLink,
+	...
+])
 ```
 
 ## Context
