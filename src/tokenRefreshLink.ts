@@ -14,6 +14,74 @@ export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch = (accessToken: string) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
 
+//Used for any Error for data from the server
+//on a request with a Status >= 300
+//response contains no data or errors
+type ServerError = Error & {
+  response: Response;
+  result: Record<string, any>;
+  statusCode: number;
+};
+
+//Thrown when server's resonse is cannot be parsed
+type ServerParseError = Error & {
+  response: Response;
+  statusCode: number;
+  bodyText: string;
+};
+
+const throwServerError = (response, result, message) => {
+  const error = new Error(message) as ServerError;
+
+  error.response = response;
+  error.statusCode = response.status;
+  error.result = result;
+
+  throw error;
+};
+
+const parseAndCheckResponse = (request, accessTokenField) => (response: Response) => {
+  return response
+    .text()
+    // .json()
+    .then(bodyText => {
+      if (!bodyText.length) {
+        // return empty body immediately
+        return bodyText;
+      }
+
+      try {
+        return JSON.parse(bodyText);
+      } catch (err) {
+        const parseError = err as ServerParseError;
+        parseError.response = response;
+        parseError.statusCode = response.status;
+        parseError.bodyText = bodyText;
+        return Promise.reject(parseError);
+      }
+    })
+    .then(parsedBody => {
+      if (response.status >= 300) {
+        //Network error
+        throwServerError(
+          response,
+          parsedBody,
+          `Response not successful: Received status code ${response.status}`,
+        );
+      }
+      if (!parsedBody.hasOwnProperty(accessTokenField) && !parsedBody.hasOwnProperty('errors')) {
+        //Data error
+        throwServerError(
+          response,
+          parsedBody,
+          `Server response was missing for query '${request.operationName}'.`,
+        );
+      }
+
+      return parsedBody;
+    });
+};
+
 export class TokenRefreshLink extends ApolloLink {
   private accessTokenField: string;
   private fetching: boolean;
@@ -55,13 +123,7 @@ export class TokenRefreshLink extends ApolloLink {
     if (!this.fetching) {
       this.fetching = true;
       this.fetchAccessToken()
-        .then(res => {
-          const json = res.json();
-          if (res.ok) {
-            return json;
-          }
-          return json.then(err => Promise.reject(err));
-        })
+        .then(parseAndCheckResponse(operation, this.accessTokenField))
         .then(body => {
           if (!body[this.accessTokenField]) {
             throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
