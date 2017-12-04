@@ -18,6 +18,7 @@ const link = new TokenRefreshLink({
   isTokenValidOrUndefined: () => boolean,
   fetchAccessToken: () => Promise<Response>,
   handleFetch: (accessToken: string) => void
+  handleError: (err: Error) => void
 });
 ```
 
@@ -30,6 +31,7 @@ Token Refresh Link takes an object with four options on it to customize the beha
 |isTokenValidOrUndefined|(...args: any[]) => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
 |fetchAccessToken|(...args: any[]) => Promise<Response>||✓|Function covers fetch call with request fresh access token|
 |handleFetch|(accessToken: string) => void||✓|Callback which receives a fresh token from Response. From here we can save token to the storage|
+|handleError|(err: Error) => void|||Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
 
 ## Example
 ```js
@@ -51,6 +53,14 @@ link: ApolloLink.from([
       const accessTokenDecrypted = jwtDecode(accessToken);
       setAccessToken(accessToken);
       setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
+    },
+    handleError: err => {
+    	// full control over handling token fetch Error
+    	console.warn('Your refresh token is invalid. Try to relogin');
+    	console.error(err);
+
+    	// your custom action here
+    	user.logout();
     }
   }),
   errorLink,

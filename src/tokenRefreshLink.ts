@@ -12,6 +12,7 @@ export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch = (accessToken: string) => void;
+export type HandleError = (err: Error) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
 
 //Used for any Error for data from the server
@@ -43,11 +44,10 @@ const throwServerError = (response, result, message) => {
 const parseAndCheckResponse = (request, accessTokenField) => (response: Response) => {
   return response
     .text()
-    // .json()
     .then(bodyText => {
-      if (!bodyText.length) {
+      if (typeof bodyText !== 'string' || !bodyText.length) {
         // return empty body immediately
-        return bodyText;
+        return bodyText || '';
       }
 
       try {
@@ -88,6 +88,7 @@ export class TokenRefreshLink extends ApolloLink {
   private isTokenValidOrUndefined: IsTokenValidOrUndefined;
   private fetchAccessToken: FetchAccessToken;
   private handleFetch: HandleFetch;
+  private handleError: HandleError;
   private queue: OperationQueuing;
 
   constructor(params: {
@@ -95,6 +96,7 @@ export class TokenRefreshLink extends ApolloLink {
     isTokenValidOrUndefined: IsTokenValidOrUndefined;
     fetchAccessToken: FetchAccessToken;
     handleFetch: HandleFetch;
+    handleError?: HandleError;
   }) {
     super();
 
@@ -103,6 +105,11 @@ export class TokenRefreshLink extends ApolloLink {
     this.isTokenValidOrUndefined = params.isTokenValidOrUndefined;
     this.fetchAccessToken = params.fetchAccessToken;
     this.handleFetch = params.handleFetch;
+    this.handleError = typeof params.handleError === 'function'
+      ? params.handleError
+      : err => {
+        console.error(err)
+      };
 
     this.queue = new OperationQueuing();
   }
@@ -135,7 +142,7 @@ export class TokenRefreshLink extends ApolloLink {
           this.fetching = false;
           this.queue.consumeQueue();
         })
-        .catch(err => console.error(err));
+        .catch(this.handleError);
     }
 
     return this.queue.enqueueRequest({
