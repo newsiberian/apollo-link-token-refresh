@@ -1,4 +1,5 @@
 .idea/
+covarage/
 dist/tests/
 src/
 tests/
