@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-token-refresh",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Apollo Link that performs access tokens renew",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
@@ -35,26 +35,26 @@
   "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "dependencies": {
-    "apollo-link": "^1.0.7"
+    "apollo-link": "^1.1.0"
   },
   "peerDependencies": {
-    "graphql": "^0.11.0 || ^0.12.0"
+    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0"
   },
   "devDependencies": {
     "@types/graphql": "0.11.7",
-    "@types/jest": "21.1.10",
+    "@types/jest": "22.1.2",
     "@types/zen-observable": "^0.5.3",
-    "browserify": "15.0.0",
-    "graphql-tag": "2.6.1",
-    "jest": "21.2.1",
-    "jest-fetch-mock": "1.4.0",
+    "browserify": "16.1.0",
+    "graphql-tag": "2.7.3",
+    "jest": "22.3.0",
+    "jest-fetch-mock": "1.4.1",
     "proxyquire": "1.8.0",
     "rimraf": "2.6.2",
-    "rollup": "0.53.3",
-    "ts-jest": "22.0.1",
-    "tslint": "5.8.0",
-    "typescript": "2.6.2",
-    "uglify-js": "3.3.5"
+    "rollup": "0.56.0",
+    "ts-jest": "22.0.4",
+    "tslint": "5.9.1",
+    "typescript": "2.7.2",
+    "uglify-js": "3.3.10"
   },
   "jest": {
     "transform": {
