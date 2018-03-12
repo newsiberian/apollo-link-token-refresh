@@ -39,7 +39,7 @@ import { TokenRefreshLink } from 'apollo-link-token-refresh';
 
 link: ApolloLink.from([
   new TokenRefreshLink({
-    isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string'
+    isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string',
     fetchAccessToken: () => {
       return fetch(getEndpoint('getAccessTokenPath'), {
         method: 'GET',
@@ -48,7 +48,7 @@ link: ApolloLink.from([
           'refresh-token': getRefreshToken()
         }
       });
-    }
+    },
     handleFetch: accessToken => {
       const accessTokenDecrypted = jwtDecode(accessToken);
       setAccessToken(accessToken);
