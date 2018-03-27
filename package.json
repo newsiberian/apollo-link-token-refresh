@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-token-refresh",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Apollo Link that performs access tokens renew",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
@@ -41,20 +41,20 @@
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0"
   },
   "devDependencies": {
-    "@types/graphql": "0.11.7",
-    "@types/jest": "22.1.2",
+    "@types/graphql": "0.12.6",
+    "@types/jest": "22.2.2",
     "@types/zen-observable": "0.5.3",
-    "browserify": "16.1.0",
-    "graphql-tag": "2.7.3",
-    "jest": "22.3.0",
-    "jest-fetch-mock": "1.4.1",
-    "proxyquire": "1.8.0",
+    "browserify": "16.1.1",
+    "graphql-tag": "2.8.0",
+    "jest": "22.4.3",
+    "jest-fetch-mock": "1.5.0",
+    "proxyquire": "2.0.1",
     "rimraf": "2.6.2",
-    "rollup": "0.56.0",
-    "ts-jest": "22.0.4",
+    "rollup": "0.57.1",
+    "ts-jest": "22.4.2",
     "tslint": "5.9.1",
     "typescript": "2.7.2",
-    "uglify-js": "3.3.10"
+    "uglify-js": "3.3.16"
   },
   "jest": {
     "transform": {
