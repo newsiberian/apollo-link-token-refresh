@@ -1,4 +1,4 @@
-# Token Refresh Link
+# Token Refresh Link [![npm version](https://badge.fury.io/js/apollo-link-token-refresh.svg)](https://badge.fury.io/js/apollo-link-token-refresh)
 
 ## Purpose
 An Apollo Link that performs renew expired JWT (access tokens)
