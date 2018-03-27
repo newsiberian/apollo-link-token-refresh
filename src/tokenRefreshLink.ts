@@ -12,19 +12,20 @@ export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch = (accessToken: string) => void;
+export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
 export type HandleError = (err: Error) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
 
-//Used for any Error for data from the server
-//on a request with a Status >= 300
-//response contains no data or errors
+// Used for any Error for data from the server
+// on a request with a Status >= 300
+// response contains no data or errors
 type ServerError = Error & {
   response: Response;
   result: Record<string, any>;
   statusCode: number;
 };
 
-//Thrown when server's resonse is cannot be parsed
+// Thrown when server's response is cannot be parsed
 type ServerParseError = Error & {
   response: Response;
   statusCode: number;
@@ -41,7 +42,7 @@ const throwServerError = (response, result, message) => {
   throw error;
 };
 
-const parseAndCheckResponse = (request, accessTokenField) => (response: Response) => {
+const parseAndCheckResponse = (operation: Operation, accessTokenField: string) => (response: Response) => {
   return response
     .text()
     .then(bodyText => {
@@ -62,7 +63,7 @@ const parseAndCheckResponse = (request, accessTokenField) => (response: Response
     })
     .then(parsedBody => {
       if (response.status >= 300) {
-        //Network error
+        // Network error
         throwServerError(
           response,
           parsedBody,
@@ -70,11 +71,11 @@ const parseAndCheckResponse = (request, accessTokenField) => (response: Response
         );
       }
       if (!parsedBody.hasOwnProperty(accessTokenField) && !parsedBody.hasOwnProperty('errors')) {
-        //Data error
+        // Data error
         throwServerError(
           response,
           parsedBody,
-          `Server response was missing for query '${request.operationName}'.`,
+          `Server response was missing for query '${operation.operationName}'.`,
         );
       }
 
@@ -88,6 +89,7 @@ export class TokenRefreshLink extends ApolloLink {
   private isTokenValidOrUndefined: IsTokenValidOrUndefined;
   private fetchAccessToken: FetchAccessToken;
   private handleFetch: HandleFetch;
+  private handleResponse: HandleResponse;
   private handleError: HandleError;
   private queue: OperationQueuing;
 
@@ -96,6 +98,7 @@ export class TokenRefreshLink extends ApolloLink {
     isTokenValidOrUndefined: IsTokenValidOrUndefined;
     fetchAccessToken: FetchAccessToken;
     handleFetch: HandleFetch;
+    handleResponse?: HandleResponse;
     handleError?: HandleError;
   }) {
     super();
@@ -105,6 +108,7 @@ export class TokenRefreshLink extends ApolloLink {
     this.isTokenValidOrUndefined = params.isTokenValidOrUndefined;
     this.fetchAccessToken = params.fetchAccessToken;
     this.handleFetch = params.handleFetch;
+    this.handleResponse = params.handleResponse || parseAndCheckResponse;
     this.handleError = typeof params.handleError === 'function'
       ? params.handleError
       : err => {
@@ -130,7 +134,7 @@ export class TokenRefreshLink extends ApolloLink {
     if (!this.fetching) {
       this.fetching = true;
       this.fetchAccessToken()
-        .then(parseAndCheckResponse(operation, this.accessTokenField))
+        .then(this.handleResponse(operation, this.accessTokenField))
         .then(body => {
           if (!body[this.accessTokenField]) {
             throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
