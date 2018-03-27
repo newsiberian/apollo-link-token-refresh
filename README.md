@@ -17,8 +17,9 @@ const link = new TokenRefreshLink({
   accessTokenField: 'accessToken',
   isTokenValidOrUndefined: () => boolean,
   fetchAccessToken: () => Promise<Response>,
-  handleFetch: (accessToken: string) => void
-  handleError: (err: Error) => void
+  handleFetch: (accessToken: string) => void,
+  handleResponse?: (operation, accessTokenField) => response => any,
+  handleError?: (err: Error) => void,
 });
 ```
 
@@ -31,6 +32,7 @@ Token Refresh Link takes an object with four options on it to customize the beha
 |isTokenValidOrUndefined|(...args: any[]) => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
 |fetchAccessToken|(...args: any[]) => Promise<Response>||✓|Function covers fetch call with request fresh access token|
 |handleFetch|(accessToken: string) => void||✓|Callback which receives a fresh token from Response. From here we can save token to the storage|
+|handleResponse|(operation, accessTokenField) => response => any|||This is optional. It could be used to override internal function to manually parse and extract your token from server response|
 |handleError|(err: Error) => void|||Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
 
 ## Example
@@ -53,6 +55,15 @@ link: ApolloLink.from([
       const accessTokenDecrypted = jwtDecode(accessToken);
       setAccessToken(accessToken);
       setExpiresIn(parseExp(accessTokenDecrypted.exp).toString());
+    },
+    handleResponse: (operation, accessTokenField) => response => {
+      // here you can parse response, handle errors, prepare returned token to
+      // further operations
+
+      // returned object should be like this:
+      // {
+      //    access_token: 'token string here'
+      // }
     },
     handleError: err => {
     	// full control over handling token fetch Error
