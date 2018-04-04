@@ -2,18 +2,18 @@ export default {
   input: 'lib/tokenRefreshLink.js',
   output: {
     file: 'lib/bundle.umd.js',
-    format: 'umd'
+    format: 'umd',
+    name: 'tokenRefreshLink',
+    globals: {
+      'apollo-link': 'httpLink'
+    },
+    sourcemap: true,
+    exports: 'named',
   },
-  sourcemap: true,
-  name: 'tokenRefreshLink',
-  exports: 'named',
   onwarn,
   external: [
     'apollo-link'
   ],
-  globals: {
-    'apollo-link': 'httpLink'
-  }
 };
 
 function onwarn(message) {

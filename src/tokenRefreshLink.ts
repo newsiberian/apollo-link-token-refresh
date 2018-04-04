@@ -70,7 +70,12 @@ const parseAndCheckResponse = (operation: Operation, accessTokenField: string) =
           `Response not successful: Received status code ${response.status}`,
         );
       }
-      if (!parsedBody.hasOwnProperty(accessTokenField) && !parsedBody.hasOwnProperty('errors')) {
+      // token can be delivered via apollo query (body.data) or as usual
+      if (
+        !parsedBody.hasOwnProperty(accessTokenField)
+        && (parsedBody.data && !parsedBody.data.hasOwnProperty(accessTokenField))
+        && !parsedBody.hasOwnProperty('errors')
+      ) {
         // Data error
         throwServerError(
           response,
@@ -136,10 +141,12 @@ export class TokenRefreshLink extends ApolloLink {
       this.fetchAccessToken()
         .then(this.handleResponse(operation, this.accessTokenField))
         .then(body => {
-          if (!body[this.accessTokenField]) {
+          const token = this.extractToken(body);
+
+          if (typeof token !== 'string') {
             throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
           }
-          return body[this.accessTokenField];
+          return token;
         })
         .then(this.handleFetch)
         .then(() => {
@@ -154,4 +161,17 @@ export class TokenRefreshLink extends ApolloLink {
       forward,
     });
   }
+
+  /**
+   * An attempt to extract token from body.data. This allows us to use apollo query
+   * for auth token refreshing
+   * @param body {Object} response body
+   * @return {string} access token
+   */
+  private extractToken = (body: any): string => {
+    if (body.data) {
+      return body.data[this.accessTokenField];
+    }
+    return body[this.accessTokenField];
+  };
 }
