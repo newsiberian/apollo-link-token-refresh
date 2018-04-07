@@ -26,14 +26,14 @@ const link = new TokenRefreshLink({
 ## Options
 Token Refresh Link takes an object with four options on it to customize the behavior of the link
 
-|name|value|default|required|explanation|
-|---|---|---|:---:|---|
-|accessTokenField|string|'access_token'||This is a name of access token field in response
-|isTokenValidOrUndefined|(...args: any[]) => boolean||✓|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
-|fetchAccessToken|(...args: any[]) => Promise<Response>||✓|Function covers fetch call with request fresh access token|
-|handleFetch|(accessToken: string) => void||✓|Callback which receives a fresh token from Response. From here we can save token to the storage|
-|handleResponse|(operation, accessTokenField) => response => any|||This is optional. It could be used to override internal function to manually parse and extract your token from server response|
-|handleError|(err: Error) => void|||Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
+|name|value|explanation|
+|---|---|---|
+|accessTokenField?|string|**Default:** `access_token`. This is a name of access token field in response. In some scenarios we want to pass additional payload with access token, i.e. new refresh token, so this field could be then name of the object|
+|isTokenValidOrUndefined|(...args: any[]) => boolean|Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) `true` should be returned|
+|fetchAccessToken|(...args: any[]) => Promise<Response>|Function covers fetch call with request fresh access token|
+|handleFetch|(accessToken: string) => void|Callback which receives a fresh token from Response. From here we can save token to the storage|
+|handleResponse?|(operation, accessTokenField) => response => any|This is optional. It could be used to override internal function to manually parse and extract your token from server response|
+|handleError?|(err: Error) => void|Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
 
 ## Example
 ```js

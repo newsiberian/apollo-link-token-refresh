@@ -143,7 +143,7 @@ export class TokenRefreshLink extends ApolloLink {
         .then(body => {
           const token = this.extractToken(body);
 
-          if (typeof token !== 'string') {
+          if (token) {
             throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
           }
           return token;
