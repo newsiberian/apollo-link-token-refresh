@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-token-refresh",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Apollo Link that performs access tokens renew",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
@@ -35,10 +35,10 @@
   "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "dependencies": {
-    "apollo-link": "^1.1.0"
+    "apollo-link": "^1.2.3"
   },
   "peerDependencies": {
-    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^0.14.0"
+    "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
   },
   "devDependencies": {
     "@types/graphql": "14.0.3",
