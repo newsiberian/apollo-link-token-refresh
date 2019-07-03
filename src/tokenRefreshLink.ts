@@ -153,7 +153,11 @@ export class TokenRefreshLink extends ApolloLink {
           this.fetching = false;
           this.queue.consumeQueue();
         })
-        .catch(this.handleError);
+        .catch(err => {
+          this.fetching = false;
+          this.handleError(err);
+        }
+        );
     }
 
     return this.queue.enqueueRequest({
