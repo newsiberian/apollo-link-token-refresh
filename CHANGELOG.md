@@ -1,5 +1,8 @@
 # Change log
 
+### 0.2.6
+- Fixed endless `fetching` after receiving error
+
 ### 0.2.4
 - updated `graphql` peerDependency
 
