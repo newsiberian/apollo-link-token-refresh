@@ -15,6 +15,7 @@ export type HandleFetch = (accessToken: string) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
 export type HandleError = (err: Error) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
+export type PassOperationOnError = Boolean;
 
 // Used for any Error for data from the server
 // on a request with a Status >= 300
@@ -96,6 +97,7 @@ export class TokenRefreshLink extends ApolloLink {
   private handleFetch: HandleFetch;
   private handleResponse: HandleResponse;
   private handleError: HandleError;
+  private passOperationOnError: PassOperationOnError;
   private queue: OperationQueuing;
 
   constructor(params: {
@@ -105,6 +107,7 @@ export class TokenRefreshLink extends ApolloLink {
     handleFetch: HandleFetch;
     handleResponse?: HandleResponse;
     handleError?: HandleError;
+    passOperationOnError?: PassOperationOnError;
   }) {
     super();
 
@@ -119,6 +122,7 @@ export class TokenRefreshLink extends ApolloLink {
       : err => {
         console.error(err)
       };
+    this.passOperationOnError = params.passOperationOnError || false;
 
     this.queue = new OperationQueuing();
   }
@@ -155,6 +159,9 @@ export class TokenRefreshLink extends ApolloLink {
         })
         .catch(err => {
           this.fetching = false;
+          if(this.passOperationOnError) {
+            this.queue.consumeQueue();
+          }
           this.handleError(err);
         });
     }
