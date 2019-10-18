@@ -1,5 +1,8 @@
 # Change log
 
+### 0.2.7
+- Call `consumeQueue` in any way (on Error)
+
 ### 0.2.6
 - Fixed endless `fetching` after receiving error
 
