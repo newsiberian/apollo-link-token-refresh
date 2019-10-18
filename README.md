@@ -20,7 +20,6 @@ const link = new TokenRefreshLink({
   handleFetch: (accessToken: string) => void,
   handleResponse?: (operation, accessTokenField) => response => any,
   handleError?: (err: Error) => void,
-  passOperationOnError?: boolean,
 });
 ```
 
@@ -35,7 +34,6 @@ Token Refresh Link takes an object with four options on it to customize the beha
 |handleFetch|(accessToken: string) => void|Callback which receives a fresh token from Response. From here we can save token to the storage|
 |handleResponse?|(operation, accessTokenField) => response => any|This is optional. It could be used to override internal function to manually parse and extract your token from server response|
 |handleError?|(err: Error) => void|Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
-|passOperationOnError?|boolean|**Default:** `false`. Whether to pass the operation to the next link incase of an error. This is useful in some cases where we need to handle the error with another Link.|
 
 ## Example
 ```js
@@ -74,8 +72,7 @@ link: ApolloLink.from([
 
     	// your custom action here
     	user.logout();
-    },
-    passOperationOnError: false
+    }
   }),
   errorLink,
   requestLink,
