@@ -35,6 +35,7 @@
   "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "dependencies": {
+    "@apollo/client": "^3.0.0-beta.41",
     "apollo-link": "^1.2.3"
   },
   "peerDependencies": {

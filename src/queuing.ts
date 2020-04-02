@@ -1,4 +1,5 @@
-import { Observable, Operation, NextLink, FetchResult } from 'apollo-link';
+import { Observable, Operation, NextLink, FetchResult } from '@apollo/client';
+import { print } from 'graphql/language/printer';
 
 export interface SubscriberInterface {
   next?: (result: FetchResult) => void;
@@ -52,7 +53,7 @@ export class OperationQueuing {
 
   public consumeQueue(): void {
     this.queuedRequests.forEach(request => {
-      const key = request.operation.toKey();
+      const key = requestToKey(request)
       this.subscriptions[key] =
         request.forward(request.operation).subscribe(request.subscriber);
 
@@ -63,4 +64,14 @@ export class OperationQueuing {
 
     this.queuedRequests = [];
   }
+}
+
+function requestToKey(request: QueuedRequest): string {
+  const queryString =
+    typeof request.operation.query === 'string' ? request.operation.query : print(request.operation.query);
+
+  return JSON.stringify({
+    variables: request.operation.variables || {},
+    query: queryString,
+  });
 }
