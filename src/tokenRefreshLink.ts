@@ -4,7 +4,7 @@ import {
   Operation,
   NextLink,
   FetchResult,
-} from 'apollo-link';
+} from '@apollo/client/core';
 
 import { OperationQueuing } from './queuing';
 
@@ -88,28 +88,57 @@ const parseAndCheckResponse = (operation: Operation, accessTokenField: string) =
     });
 };
 
+export namespace TokenRefreshLink {
+  export interface Options {
+    /**
+     * The field name for the access token.
+     *
+     * Defaults to "access_token".
+     */
+    accessTokenField?: string;
+
+    /**
+     * Function to validate the token. Should be provided by the consumer of this library.
+     */
+    isTokenValidOrUndefined: IsTokenValidOrUndefined;
+
+    /**
+     * When the new access token is retrieved, an app would normally safely persist it for use in subsequent requests
+     */
+    handleFetch: HandleFetch;
+
+    /**
+     * Called when a new access token is needed. Commonly a cookie or other source of refresh_token would provide creds for this.
+     */
+    fetchAccessToken: FetchAccessToken;
+
+    /**
+     * 
+     */
+    handleResponse?: HandleResponse;
+
+    /**
+     * Called if an error occurs in fetching the token
+     */
+    handleError: HandleError;
+  }
+}
+
+
 export class TokenRefreshLink extends ApolloLink {
   private accessTokenField: string;
-  private fetching: boolean;
   private isTokenValidOrUndefined: IsTokenValidOrUndefined;
   private fetchAccessToken: FetchAccessToken;
   private handleFetch: HandleFetch;
   private handleResponse: HandleResponse;
   private handleError: HandleError;
+  private fetching: boolean;
   private queue: OperationQueuing;
 
-  constructor(params: {
-    accessTokenField?: string;
-    isTokenValidOrUndefined: IsTokenValidOrUndefined;
-    fetchAccessToken: FetchAccessToken;
-    handleFetch: HandleFetch;
-    handleResponse?: HandleResponse;
-    handleError?: HandleError;
-  }) {
+  constructor(params: TokenRefreshLink.Options) {
     super();
 
-    this.accessTokenField = (params && params.accessTokenField) || 'access_token';
-    this.fetching = false;
+    this.accessTokenField = (params.accessTokenField) || 'access_token';
     this.isTokenValidOrUndefined = params.isTokenValidOrUndefined;
     this.fetchAccessToken = params.fetchAccessToken;
     this.handleFetch = params.handleFetch;
@@ -119,19 +148,20 @@ export class TokenRefreshLink extends ApolloLink {
       : err => {
         console.error(err)
       };
-
+      
+    this.fetching = false;
     this.queue = new OperationQueuing();
   }
 
   public request(
     operation: Operation,
     forward: NextLink,
-  ): Observable<FetchResult> {
+  ): Observable<FetchResult> | null {
     if (typeof forward !== 'function') {
-      throw new Error('[Token Refresh Link]: Token Refresh Link is non-terminating link and should not be the last in the composed chain');
+      throw new Error('[Token Refresh Link]: Token Refresh Link is a non-terminating link and should not be the last in the composed chain');
     }
-    // If token does not exists, which could means that this is a not registered
-    // user request, or if it is does not expired -- act as always
+    // If token does not exist, which could mean that this is a not registered
+    // user request, or if it is is not expired -- act as always
     if (this.isTokenValidOrUndefined()) {
       return forward(operation);
     }

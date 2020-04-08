@@ -4,7 +4,7 @@ import {
   Observable,
   Operation,
   FetchResult,
-} from 'apollo-link';
+} from '@apollo/client';
 import gql from 'graphql-tag';
 import { print } from 'graphql/language/printer';
 import { mockResponse, mockRejectOnce } from 'jest-fetch-mock';

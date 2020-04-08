@@ -1,4 +1,4 @@
-import { Observable, Operation, NextLink, FetchResult } from 'apollo-link';
+import { Observable, Operation, NextLink, FetchResult } from '@apollo/client/core';
 
 export interface SubscriberInterface {
   next?: (result: FetchResult) => void;
@@ -22,8 +22,6 @@ export interface QueuedRequest {
 
 export class OperationQueuing {
   public queuedRequests: QueuedRequest[] = [];
-
-  private subscriptions: { [key: string]: ZenObservable.Subscription } = {};
 
   constructor() {
     this.queuedRequests = [];
@@ -52,13 +50,7 @@ export class OperationQueuing {
 
   public consumeQueue(): void {
     this.queuedRequests.forEach(request => {
-      const key = request.operation.toKey();
-      this.subscriptions[key] =
         request.forward(request.operation).subscribe(request.subscriber);
-
-      return () => {
-        this.subscriptions[key].unsubscribe();
-      };
     });
 
     this.queuedRequests = [];
