@@ -91,36 +91,38 @@ const parseAndCheckResponse = (operation: Operation, accessTokenField: string) =
 export namespace TokenRefreshLink {
   export interface Options {
     /**
-     * The field name for the access token.
+     * This is a name of access token field in response. 
+     * In some scenarios we want to pass additional payload with access token, 
+     * i.e. new refresh token, so this field could be the object's name.
      *
-     * Defaults to "access_token".
+     * Default: "access_token".
      */
     accessTokenField?: string;
 
     /**
-     * Function to validate the token. Should be provided by the consumer of this library.
+     * Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) true should be returned.
      */
     isTokenValidOrUndefined: IsTokenValidOrUndefined;
 
     /**
-     * When the new access token is retrieved, an app would normally safely persist it for use in subsequent requests
+     * When the new access token is retrieved, an app might persist it in memory (consider avoiding local storage) for use in subsequent requests.
      */
     handleFetch: HandleFetch;
 
     /**
-     * Called when a new access token is needed. Commonly a cookie or other source of refresh_token would provide creds for this.
+     * Callback which receives a fresh token from Response
      */
     fetchAccessToken: FetchAccessToken;
 
     /**
-     * 
+     * Optional. Override internal function to manually parse and extract your token from server response
      */
     handleResponse?: HandleResponse;
 
     /**
-     * Called if an error occurs in fetching the token
+     * Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option
      */
-    handleError: HandleError;
+    handleError?: HandleError;
   }
 }
 
