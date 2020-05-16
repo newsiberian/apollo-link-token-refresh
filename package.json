@@ -35,26 +35,26 @@
   "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "dependencies": {
-    "@apollo/client": "^3.0.0-beta.43"
+    "@apollo/client": "^3.0.0-beta.48"
   },
   "peerDependencies": {
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
   },
   "devDependencies": {
     "@types/graphql": "14.5.0",
-    "@types/jest": "^25.2.1",
+    "@types/jest": "^25.2.2",
     "@types/zen-observable": "^0.8.0",
     "browserify": "16.5.1",
     "graphql-tag": "^2.9.2",
-    "jest": "25.3.0",
+    "jest": "26.0.1",
     "jest-fetch-mock": "^3.0.3",
     "proxyquire": "2.1.3",
     "rimraf": "3.0.2",
-    "rollup": "2.6.1",
-    "ts-jest": "25.3.1",
+    "rollup": "2.10.2",
+    "ts-jest": "26.0.0",
     "tslint": "6.1.1",
-    "typescript": "3.8.3",
-    "uglify-js": "3.8.1"
+    "typescript": "^3.9.2",
+    "uglify-js": "3.9.3"
   },
   "jest": {
     "transform": {
