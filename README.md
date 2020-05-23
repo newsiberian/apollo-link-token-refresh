@@ -12,7 +12,7 @@ Token Refresh Link is `non-terminating` link, which means that this link shouldn
 
 ## Warning
 
-If you need the Apollo v2 support, please use [release 0.2.x](tree/v0.2)
+If you need the Apollo v2 support, please use [release 0.2.x](https://github.com/newsiberian/apollo-link-token-refresh/tree/v0.2)
 
 ```js
 import { TokenRefreshLink } from "apollo-link-token-refresh";
