@@ -1,5 +1,11 @@
 # Change log
 
+### 0.3.0
+[BREAKING CHANGES]: Starting from this release we support Apollo v3 only. If you need Apollo v2 support, please use
+0.2.x version.
+
+- Experimental Apollo 3.0 support
+
 ### 0.2.7
 - Call `consumeQueue` in any way (on Error)
 

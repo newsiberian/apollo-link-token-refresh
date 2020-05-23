@@ -10,6 +10,10 @@ An Apollo Link that performs renew expired JWT (access tokens)
 ## Usage
 Token Refresh Link is `non-terminating` link, which means that this link shouldn't be the last link in the composed chain.
 
+## Warning
+
+If you need the Apollo v2 support, please use [release 0.2.x](tree/v0.2)
+
 ```js
 import { TokenRefreshLink } from "apollo-link-token-refresh";
 
