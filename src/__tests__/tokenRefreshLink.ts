@@ -3,11 +3,13 @@ import {
   execute,
   Observable,
   Operation,
-  FetchResult,
-} from 'apollo-link';
+  // FetchResult,
+  GraphQLRequest
+} from '@apollo/client/core';
 import gql from 'graphql-tag';
-import { print } from 'graphql/language/printer';
-import { mockResponse, mockRejectOnce } from 'jest-fetch-mock';
+import fetch from'jest-fetch-mock';
+
+// import { print } from 'graphql/language/printer';
 
 import {
   TokenRefreshLink,
@@ -15,29 +17,69 @@ import {
   QueuedRequest,
 } from '../tokenRefreshLink';
 
-const fetch = require('jest-fetch-mock');
 
-interface MockedResponse {
-  request: Operation;
-  result?: FetchResult;
-  error?: Error;
-  delay?: number;
+
+// interface MockedResponse {
+//   request: Operation;
+//   result?: FetchResult;
+//   error?: Error;
+//   delay?: number;
+// }
+
+// const mockedNewTokenResponse = () =>
+//   fetch.mockResponse(JSON.stringify({ access_token: '12345' }));
+
+// function requestToKey(request: Operation): string {
+//   const queryString =
+//     typeof request.query === 'string' ? request.query : print(request.query);
+
+//   return JSON.stringify({
+//     variables: request.variables || {},
+//     query: queryString,
+//   });
+// }
+
+function getKey(operation: GraphQLRequest) {
+  // XXX We're assuming here that query and variables will be serialized in
+  // the same order, which might not always be true.
+  const { query, variables, operationName } = operation;
+  return JSON.stringify([operationName, query, variables]);
 }
 
-const mockedNewTokenResponse = () =>
-  fetch.mockResponse(JSON.stringify({ access_token: '12345' }));
+export function createOperation(
+  starting: any,
+  operation: GraphQLRequest,
+): Operation {
+  let context = { ...starting };
+  const setContext = (next: any) => {
+    if (typeof next === 'function') {
+      context = { ...context, ...next(context) };
+    } else {
+      context = { ...context, ...next };
+    }
+  };
+  const getContext = () => ({ ...context });
 
-function requestToKey(request: Operation): string {
-  const queryString =
-    typeof request.query === 'string' ? request.query : print(request.query);
-
-  return JSON.stringify({
-    variables: request.variables || {},
-    query: queryString,
+  Object.defineProperty(operation, 'setContext', {
+    enumerable: false,
+    value: setContext,
   });
+
+  Object.defineProperty(operation, 'getContext', {
+    enumerable: false,
+    value: getContext,
+  });
+
+  Object.defineProperty(operation, 'toKey', {
+    enumerable: false,
+    value: () => getKey(operation),
+  });
+
+  return operation as Operation;
 }
 
-const sampleQuery = gql`
+
+const query = gql`
   query SampleQuery {
     stub {
       id
@@ -47,22 +89,16 @@ const sampleQuery = gql`
 
 const mockLink = new ApolloLink(() => {
   return new Observable(() => {
-    throw new Error('This is mocked link');
+    throw new Error('This is a mocked link');
   });
 });
 
 describe('TokenRefreshLink', () => {
-  it('need constructor arguments', () => {
-    expect(
-      () => new TokenRefreshLink(),
-    ).toThrow();
-  });
-
-  it('should construct with required arguments', () => {
+  it('should construct when required arguments are passed to constructor', () => {
     expect(
       () => new TokenRefreshLink({
         isTokenValidOrUndefined: () => true,
-        fetchAccessToken: () => new Promise(),
+        fetchAccessToken: () => new Promise(() => {}),
         handleFetch: () => void 0
       }),
     ).not.toThrow();
@@ -77,12 +113,7 @@ describe('TokenRefreshLink', () => {
       })
     ]);
 
-    expect(
-      execute(link, {
-        query: sampleQuery
-      }),
-      done()
-    ).toThrow();
+    expect(() => execute(link, { query })).toThrow();
   });
 
   it('passes forward on', () => {
@@ -95,9 +126,7 @@ describe('TokenRefreshLink', () => {
       }),
       mockLink
     ]);
-    execute(link, {
-      query: sampleQuery
-    });
+    execute(link, { query });
   });
 
   it('should throw an exception if it was thrown inside the promise', () => {
@@ -109,11 +138,7 @@ describe('TokenRefreshLink', () => {
         handleFetch: () => void 0
       }),
     ]);
-    expect(
-      execute(link, {
-        query: sampleQuery
-      })
-    ).toThrow();
+    expect(() => execute(link, { query })).toThrow();
   });
 
   // it('should allow fetch to REST endpoint and to apollo-server endpoint', () => {
@@ -122,10 +147,14 @@ describe('TokenRefreshLink', () => {
 });
 
 describe('OperationQueuing', () => {
+  it('should construct', () => {
+    expect(() =>new OperationQueuing()).not.toThrow();
+  })
+
   it('should be able to add to the queue', () => {
     const queue = new OperationQueuing();
     const request: QueuedRequest = {
-      operation: { sampleQuery },
+      operation: createOperation({}, { query }),
     };
 
     expect(queue.queuedRequests.length).toBe(0);
@@ -136,22 +165,22 @@ describe('OperationQueuing', () => {
   });
 });
 
-describe('request queue', () => {
-  const query = gql`
-      query {
-        author {
-          firstName
-          lastName
-        }
-      }
-    `;
-  const data = {
-    author: {
-      firstName: 'John',
-      lastName: 'Smith'
-    },
-  };
-  const operation: Operation = {
-    query
-  };
-});
+// describe('request queue', () => {
+//   const query = gql`
+//       query {
+//         author {
+//           firstName
+//           lastName
+//         }
+//       }
+//     `;
+//   const data = {
+//     author: {
+//       firstName: 'John',
+//       lastName: 'Smith'
+//     },
+//   };
+//   const operation: Operation = {
+//     query
+//   };
+// });

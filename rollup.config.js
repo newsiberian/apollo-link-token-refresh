@@ -5,7 +5,8 @@ export default {
     format: 'umd',
     name: 'tokenRefreshLink',
     globals: {
-      'apollo-link': 'httpLink'
+      '@apollo/client/core': 'core',
+      'tslib': 'tslib'
     },
     sourcemap: true,
     exports: 'named',

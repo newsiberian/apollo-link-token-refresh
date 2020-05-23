@@ -35,30 +35,30 @@
   "author": "Denis Akiyakov <newsiberian2015@yandex.ru>",
   "license": "MIT",
   "dependencies": {
-    "apollo-link": "^1.2.3"
+    "@apollo/client": "^3.0.0-beta.48"
   },
   "peerDependencies": {
     "graphql": "^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0"
   },
   "devDependencies": {
-    "@types/graphql": "14.0.3",
-    "@types/jest": "^23.3.1",
+    "@types/graphql": "14.5.0",
+    "@types/jest": "^25.2.2",
     "@types/zen-observable": "^0.8.0",
-    "browserify": "16.5.0",
+    "browserify": "16.5.1",
     "graphql-tag": "^2.9.2",
-    "jest": "^23.5.0",
-    "jest-fetch-mock": "^1.6.5",
+    "jest": "26.0.1",
+    "jest-fetch-mock": "^3.0.3",
     "proxyquire": "2.1.3",
-    "rimraf": "3.0.0",
-    "rollup": "0.66.6",
-    "ts-jest": "24.1.0",
-    "tslint": "5.20.0",
-    "typescript": "3.6.4",
-    "uglify-js": "3.6.2"
+    "rimraf": "3.0.2",
+    "rollup": "2.10.2",
+    "ts-jest": "26.0.0",
+    "tslint": "6.1.1",
+    "typescript": "^3.9.2",
+    "uglify-js": "3.9.3"
   },
   "jest": {
     "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+      ".(ts|tsx)": "ts-jest"
     },
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
