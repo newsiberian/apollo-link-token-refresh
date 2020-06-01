@@ -7,7 +7,7 @@ import {
   GraphQLRequest
 } from '@apollo/client/core';
 import gql from 'graphql-tag';
-import fetch from'jest-fetch-mock';
+import fetch from 'jest-fetch-mock';
 
 // import { print } from 'graphql/language/printer';
 
@@ -98,7 +98,17 @@ describe('TokenRefreshLink', () => {
     expect(
       () => new TokenRefreshLink({
         isTokenValidOrUndefined: () => true,
-        fetchAccessToken: () => new Promise(() => {}),
+        fetchAccessToken: () => new Promise(() => { }),
+        handleFetch: () => void 0
+      }),
+    ).not.toThrow();
+  });
+
+  it('should construct when using generic type for access token payload', () => {
+    expect(
+      () => new TokenRefreshLink<{ accessToken: string }>({
+        isTokenValidOrUndefined: () => true,
+        fetchAccessToken: () => new Promise(() => { }),
         handleFetch: () => void 0
       }),
     ).not.toThrow();
@@ -148,7 +158,7 @@ describe('TokenRefreshLink', () => {
 
 describe('OperationQueuing', () => {
   it('should construct', () => {
-    expect(() =>new OperationQueuing()).not.toThrow();
+    expect(() => new OperationQueuing()).not.toThrow();
   })
 
   it('should be able to add to the queue', () => {
