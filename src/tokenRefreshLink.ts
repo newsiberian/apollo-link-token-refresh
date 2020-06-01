@@ -11,7 +11,7 @@ import { OperationQueuing } from './queuing';
 export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
-export type HandleFetch = (accessToken: string) => void;
+export type HandleFetch<AccessTokenPayloadType> = (accessTokenPayload: AccessTokenPayloadType) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
 export type HandleError = (err: Error) => void;
 export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
@@ -89,7 +89,7 @@ const parseAndCheckResponse = (operation: Operation, accessTokenField: string) =
 };
 
 export namespace TokenRefreshLink {
-  export interface Options {
+  export interface Options<AccessTokenPayloadType> {
     /**
      * This is a name of access token field in response. 
      * In some scenarios we want to pass additional payload with access token, 
@@ -107,7 +107,7 @@ export namespace TokenRefreshLink {
     /**
      * When the new access token is retrieved, an app might persist it in memory (consider avoiding local storage) for use in subsequent requests.
      */
-    handleFetch: HandleFetch;
+    handleFetch: HandleFetch<AccessTokenPayloadType>;
 
     /**
      * Callback which receives a fresh token from Response
@@ -127,17 +127,17 @@ export namespace TokenRefreshLink {
 }
 
 
-export class TokenRefreshLink extends ApolloLink {
+export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLink {
   private accessTokenField: string;
   private isTokenValidOrUndefined: IsTokenValidOrUndefined;
   private fetchAccessToken: FetchAccessToken;
-  private handleFetch: HandleFetch;
+  private handleFetch: HandleFetch<AccessTokenPayloadType>;
   private handleResponse: HandleResponse;
   private handleError: HandleError;
   private fetching: boolean;
   private queue: OperationQueuing;
 
-  constructor(params: TokenRefreshLink.Options) {
+  constructor(params: TokenRefreshLink.Options<AccessTokenPayloadType>) {
     super();
 
     this.accessTokenField = (params.accessTokenField) || 'access_token';
@@ -150,7 +150,7 @@ export class TokenRefreshLink extends ApolloLink {
       : err => {
         console.error(err)
       };
-      
+
     this.fetching = false;
     this.queue = new OperationQueuing();
   }
@@ -200,7 +200,7 @@ export class TokenRefreshLink extends ApolloLink {
    * @param body {Object} response body
    * @return {string} access token
    */
-  private extractToken = (body: any): string => {
+  private extractToken = (body: any): AccessTokenPayloadType => {
     if (body.data) {
       return body.data[this.accessTokenField];
     }
