@@ -1,5 +1,8 @@
 # Change log
 
+### 0.3.1
+- Allow generic typing of access token payload
+
 ### 0.3.0
 [BREAKING CHANGES]: Starting from this release we support Apollo v3 only. If you need Apollo v2 support, please use
 0.2.x version.

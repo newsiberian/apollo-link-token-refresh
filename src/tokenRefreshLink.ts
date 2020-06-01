@@ -91,8 +91,8 @@ const parseAndCheckResponse = (operation: Operation, accessTokenField: string) =
 export namespace TokenRefreshLink {
   export interface Options<AccessTokenPayloadType> {
     /**
-     * This is a name of access token field in response. 
-     * In some scenarios we want to pass additional payload with access token, 
+     * This is a name of access token field in response.
+     * In some scenarios we want to pass additional payload with access token,
      * i.e. new refresh token, so this field could be the object's name.
      *
      * Default: "access_token".
