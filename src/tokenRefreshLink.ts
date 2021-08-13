@@ -100,7 +100,7 @@ export namespace TokenRefreshLink {
     accessTokenField?: string;
 
     /**
-     * Indicates the current state of access token expiration. If token not yet expired or user doesn't have a token (guest) true should be returned.
+     * Indicates the current state of access token expiration. If the token is not yet expired or the user does not require a token (guest), then true should be returned.
      */
     isTokenValidOrUndefined: IsTokenValidOrUndefined;
 
