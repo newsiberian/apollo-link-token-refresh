@@ -1,6 +1,6 @@
 {
   "name": "apollo-link-token-refresh",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Apollo Link that performs access tokens renew",
   "main": "./lib/bundle.umd.js",
   "module": "./lib/tokenRefreshLink.js",
@@ -51,7 +51,7 @@
     "rollup": "2.10.7",
     "ts-jest": "26.0.0",
     "tslint": "6.1.2",
-    "typescript": "^3.9.2",
+    "typescript": "^4.5.2",
     "uglify-js": "3.9.3"
   },
   "jest": {
