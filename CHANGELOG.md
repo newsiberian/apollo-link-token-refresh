@@ -1,5 +1,8 @@
 # Change log
 
+### 0.3.3
+- `@apollo/client` moved to peer dependencies
+
 ### 0.3.1
 - Allow generic typing of access token payload
 
