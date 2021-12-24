@@ -31,7 +31,7 @@ const link = new TokenRefreshLink({
 
 ## Options
 
-Token Refresh Link takes an object with four options on it to customize the behavior of the link
+The Token Refresh Link takes an object with four options on it to customize the behavior of the link.
 
 |name|value|explanation|
 |---|---|---|
@@ -107,4 +107,4 @@ In a scenario where you're using Typescript and your the return of your refresh 
 
 ## Context
 
-The Token Refresh Link does not use the context for anything
+The Token Refresh Link does not use the context for anything.
