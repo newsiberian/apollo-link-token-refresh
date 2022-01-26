@@ -1,5 +1,8 @@
 # Change log
 
+### 0.3.4
+- added graphql v16 support
+
 ### 0.3.3
 - `@apollo/client` moved to peer dependencies
 
