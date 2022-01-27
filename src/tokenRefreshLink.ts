@@ -11,10 +11,10 @@ import { OperationQueuing } from './queuing';
 export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
-export type HandleFetch<AccessTokenPayloadType> = (accessTokenPayload: AccessTokenPayloadType) => void;
+export type HandleFetch<AccessTokenPayloadType> = (operation: Operation, accessTokenPayload: AccessTokenPayloadType) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
-export type HandleError = (err: Error) => void;
-export type IsTokenValidOrUndefined = (...args: any[]) => boolean;
+export type HandleError = (operation: Operation, err: Error) => void;
+export type IsTokenValidOrUndefined = (operation: Operation, ...args: any[]) => boolean;
 
 // Used for any Error for data from the server
 // on a request with a Status >= 300
@@ -164,7 +164,7 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
     }
     // If token does not exist, which could mean that this is a not registered
     // user request, or if it is is not expired -- act as always
-    if (this.isTokenValidOrUndefined()) {
+    if (this.isTokenValidOrUndefined(operation)) {
       return forward(operation);
     }
 
@@ -180,8 +180,8 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
           }
           return token;
         })
-        .then(this.handleFetch)
-        .catch(this.handleError)
+        .then(payload => this.handleFetch(operation, payload))
+        .catch(error => this.handleError(operation, error))
         .finally(() => {
           this.fetching = false;
           this.queue.consumeQueue();
