@@ -11,9 +11,9 @@ import { OperationQueuing } from './queuing';
 export { OperationQueuing, QueuedRequest } from './queuing';
 
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
-export type HandleFetch<AccessTokenPayloadType> = (operation: Operation, accessTokenPayload: AccessTokenPayloadType) => void;
+export type HandleFetch<AccessTokenPayloadType> = (accessTokenPayload: AccessTokenPayloadType, operation: Operation) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
-export type HandleError = (operation: Operation, err: Error) => void;
+export type HandleError = (err: Error, operation: Operation) => void;
 export type IsTokenValidOrUndefined = (operation: Operation, ...args: any[]) => boolean;
 
 // Used for any Error for data from the server
@@ -163,7 +163,7 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
       throw new Error('[Token Refresh Link]: Token Refresh Link is a non-terminating link and should not be the last in the composed chain');
     }
     // If token does not exist, which could mean that this is a not registered
-    // user request, or if it is is not expired -- act as always
+    // user request, or if it is not expired -- act as always
     if (this.isTokenValidOrUndefined(operation)) {
       return forward(operation);
     }
@@ -180,8 +180,8 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
           }
           return token;
         })
-        .then(payload => this.handleFetch(operation, payload))
-        .catch(error => this.handleError(operation, error))
+        .then(payload => this.handleFetch(payload, operation))
+        .catch(error => this.handleError(error, operation))
         .finally(() => {
           this.fetching = false;
           this.queue.consumeQueue();
