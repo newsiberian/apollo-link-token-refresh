@@ -21,11 +21,11 @@ import { TokenRefreshLink } from "apollo-link-token-refresh";
 
 const link = new TokenRefreshLink({
   accessTokenField: 'accessToken',
-  isTokenValidOrUndefined: () => boolean,
+  isTokenValidOrUndefined: (operation) => boolean,
   fetchAccessToken: () => Promise<Response>,
-  handleFetch: (accessToken: string) => void,
+  handleFetch: (operation, accessToken: string) => void,
   handleResponse?: (operation, accessTokenField) => response => any,
-  handleError?: (err: Error) => void,
+  handleError?: (operation, err: Error) => void,
 });
 ```
 
@@ -36,11 +36,11 @@ The Token Refresh Link takes an object with four options on it to customize the 
 |name|value|explanation|
 |---|---|---|
 |accessTokenField?|`string`|**Default:** `access_token`. This is a name of access token field in response. In some scenarios we want to pass additional payload with access token, i.e. new refresh token, so this field could be the object's name|
-|isTokenValidOrUndefined|`(...args: any[]) => boolean`|Indicates the current state of access token expiration. If the token is not yet expired or the user does not require a token (guest), then `true` should be returned|
+|isTokenValidOrUndefined|`(operation, ...args: any[]) => boolean`|Indicates the current state of access token expiration. If the token is not yet expired or the user does not require a token (guest), then `true` should be returned|
 |fetchAccessToken|`(...args: any[]) => Promise<Response>`|Function covers fetch call with request fresh access token|
-|handleFetch|`(accessToken: string) => void`|Callback which receives a fresh token from Response. From here we can save token to the storage|
+|handleFetch|`(operation, accessToken: string) => void`|Callback which receives a fresh token from Response. From here we can save token to the storage|
 |handleResponse?|`(operation, accessTokenField) => response => any`|This is optional. It could be used to override internal function to manually parse and extract your token from server response|
-|handleError?|`(err: Error) => void`|Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
+|handleError?|`(operation, err: Error) => void`|Token fetch error callback. Allows to run additional actions like logout. Don't forget to handle Error if you are using this option|
 
 ## Example
 
