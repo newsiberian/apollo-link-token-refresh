@@ -1,5 +1,8 @@
 # Change log
 
+### 0.4.0
+[BREAKING CHANGES]: Callbacks `HandleFetch`, `HandleError` and prop `IsTokenValidOrUndefined` now receives `operation` as additional argument
+
 ### 0.3.4
 - added graphql v16 support
 
