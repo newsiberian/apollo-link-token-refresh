@@ -105,6 +105,26 @@ In a scenario where you're using Typescript and your the return of your refresh 
   })
 ```
 
+## Storing access token in Redux
+
+If access token is stored in Redux state, `operation` object allows to reach the state and dispatch needed actions, i.e. :
+
+```ts
+    new TokenRefreshLink({
+        // rest omitted for brevity
+        isTokenValidOrUndefined: operation => {
+            const { getState } = operation.getContext();
+            const accessToken = accessTokenSelector(getState());
+            // validate access token and return true/false
+        }
+        handleFetch: (accessToken, operation) => {
+            const { dispatch } = operation.getContext();
+            dispatch(setAccessToken(accessToken));
+        },
+        ...
+    });
+```
+
 ## Context
 
 The Token Refresh Link does not use the context for anything.
