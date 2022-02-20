@@ -79,6 +79,7 @@ link: ApolloLink.from([
        console.error(err);
        
        // When the browser is offline and an error occurs we don’t want the user to be logged out of course.
+       // We also don’t want to delete a JWT token from the `localStorage` in this case of course.
        if (
          !navigator.onLine ||
          (error instanceof TypeError &&
