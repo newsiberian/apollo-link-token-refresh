@@ -77,9 +77,21 @@ link: ApolloLink.from([
        // full control over handling token fetch Error
        console.warn('Your refresh token is invalid. Try to relogin');
        console.error(err);
+       
+       // When the browser is offline and an error occurs we don’t want the user to be logged out of course.
+       // We also don’t want to delete a JWT token from the `localStorage` in this case of course.
+       if (
+         !navigator.onLine ||
+         (error instanceof TypeError &&
+           error.message === "Network request failed")
+       ) {
+         console.log("Offline -> do nothing 🍵")
+       } else {
+         console.log("Online -> log out 👋")
 
-       // your custom action here
-       user.logout();
+         // your custom action here
+         user.logout();
+      }       
     }
   }),
   errorLink,
