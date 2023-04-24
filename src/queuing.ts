@@ -33,16 +33,16 @@ export class OperationQueuing {
     requestCopy.observable =
       requestCopy.observable ||
       new Observable<FetchResult>(observer => {
-        this.queuedRequests.push(requestCopy);
+          this.queuedRequests.push(requestCopy);
 
-        if (typeof requestCopy.subscriber === 'undefined') {
-          requestCopy.subscriber = {};
-        }
+          if (typeof requestCopy.subscriber === 'undefined') {
+            requestCopy.subscriber = {};
+          }
 
-        requestCopy.subscriber.next = requestCopy.next || observer.next.bind(observer);
-        requestCopy.subscriber.error = requestCopy.error || observer.error.bind(observer);
-        requestCopy.subscriber.complete =
-          requestCopy.complete || observer.complete.bind(observer);
+          requestCopy.subscriber.next = requestCopy.next || observer.next.bind(observer);
+          requestCopy.subscriber.error = requestCopy.error || observer.error.bind(observer);
+          requestCopy.subscriber.complete =
+            requestCopy.complete || observer.complete.bind(observer);
       });
 
     return requestCopy.observable;

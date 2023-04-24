@@ -4,17 +4,17 @@ import {
   Operation,
   NextLink,
   FetchResult,
+  fromPromise,
 } from '@apollo/client/core';
 
 import { OperationQueuing } from './queuing';
 
 export { OperationQueuing, QueuedRequest } from './queuing';
-
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch<AccessTokenPayloadType> = (accessTokenPayload: AccessTokenPayloadType, operation: Operation) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
 export type HandleError = (err: Error, operation: Operation) => void;
-export type IsTokenValidOrUndefined = (operation: Operation, ...args: any[]) => boolean;
+export type IsTokenValidOrUndefined = (operation: Operation, ...args: any[]) => Promise<boolean>;
 
 // Used for any Error for data from the server
 // on a request with a Status >= 300
@@ -140,7 +140,7 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
   constructor(params: TokenRefreshLink.Options<AccessTokenPayloadType>) {
     super();
 
-    this.accessTokenField = (params.accessTokenField) || 'access_token';
+    this.accessTokenField = params.accessTokenField || 'access_token';
     this.isTokenValidOrUndefined = params.isTokenValidOrUndefined;
     this.fetchAccessToken = params.fetchAccessToken;
     this.handleFetch = params.handleFetch;
@@ -162,36 +162,43 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
     if (typeof forward !== 'function') {
       throw new Error('[Token Refresh Link]: Token Refresh Link is a non-terminating link and should not be the last in the composed chain');
     }
-    // If token does not exist, which could mean that this is a not registered
-    // user request, or if it is not expired -- act as always
-    if (this.isTokenValidOrUndefined(operation)) {
-      return forward(operation);
-    }
-
-    if (!this.fetching) {
-      this.fetching = true;
-      this.fetchAccessToken()
-        .then(this.handleResponse(operation, this.accessTokenField))
-        .then(body => {
-          const token = this.extractToken(body);
-
-          if (!token) {
-            throw new Error('[Token Refresh Link]: Unable to retrieve new access token');
+    
+    return fromPromise(
+      this.isTokenValidOrUndefined(operation).then((tokenValidOrUndefined) => {
+        // If token does not exist, which could mean that this is a not registered
+        // user request, or if it is not expired -- act as always
+        if (tokenValidOrUndefined) {
+          return forward(operation);
+        } else {
+          if (!this.fetching) {
+            this.fetching = true;
+            this.fetchAccessToken()
+              .then(this.handleResponse(operation, this.accessTokenField))
+              .then((body) => {
+                const token = this.extractToken(body);
+                if (!token) {
+                  throw new Error(
+                    "[Token Refresh Link]: Unable to retrieve new access token"
+                  );
+                }
+                return token;
+              })
+              .then((payload) => {
+                this.handleFetch(payload, operation)})
+              .catch((error) => this.handleError(error, operation))
+              .finally(() => {
+                this.fetching = false;
+                this.queue.consumeQueue();
+              });
           }
-          return token;
-        })
-        .then(payload => this.handleFetch(payload, operation))
-        .catch(error => this.handleError(error, operation))
-        .finally(() => {
-          this.fetching = false;
-          this.queue.consumeQueue();
-        })
-    }
 
-    return this.queue.enqueueRequest({
-      operation,
-      forward,
-    });
+          return this.queue.enqueueRequest({
+            operation,
+            forward,
+          });
+        }
+      })
+    ).flatMap(val => val)
   }
 
   /**

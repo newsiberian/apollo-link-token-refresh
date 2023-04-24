@@ -93,11 +93,15 @@ const mockLink = new ApolloLink(() => {
   });
 });
 
+const mockedFetching = jest.fn(() => () => {
+  return fetch('http://localhost')
+})
+
 describe('TokenRefreshLink', () => {
   it('should construct when required arguments are passed to constructor', () => {
     expect(
       () => new TokenRefreshLink({
-        isTokenValidOrUndefined: () => true,
+        isTokenValidOrUndefined: async () => true,
         fetchAccessToken: () => new Promise(() => { }),
         handleFetch: () => void 0
       }),
@@ -107,7 +111,7 @@ describe('TokenRefreshLink', () => {
   it('should construct when using generic type for access token payload', () => {
     expect(
       () => new TokenRefreshLink<{ accessToken: string }>({
-        isTokenValidOrUndefined: () => true,
+        isTokenValidOrUndefined: async () => true,
         fetchAccessToken: () => new Promise(() => { }),
         handleFetch: () => void 0
       }),
@@ -117,7 +121,7 @@ describe('TokenRefreshLink', () => {
   it('should throw an exception if link is the last in composed chain', () => {
     const link = ApolloLink.from([
       new TokenRefreshLink({
-        isTokenValidOrUndefined: () => false,
+        isTokenValidOrUndefined: async () => false,
         fetchAccessToken: () => fetch('http://localhost'),
         handleFetch: () => void 0
       })
@@ -130,7 +134,7 @@ describe('TokenRefreshLink', () => {
     const link = ApolloLink.from([
       new TokenRefreshLink({
         // token is valid, so we are passing forward immediately
-        isTokenValidOrUndefined: () => true,
+        isTokenValidOrUndefined: async () => true,
         fetchAccessToken: () => fetch('http://localhost'),
         handleFetch: () => void 0
       }),
@@ -143,18 +147,46 @@ describe('TokenRefreshLink', () => {
     fetch.mockResponse(JSON.stringify({ bad_token: '12345' }));
     const link = ApolloLink.from([
       new TokenRefreshLink({
-        isTokenValidOrUndefined: () => false,
+        isTokenValidOrUndefined: async () => false,
         fetchAccessToken: () => fetch('http://localhost'),
         handleFetch: () => void 0
-      }),
+      })
     ]);
-    expect(() => execute(link, { query })).toThrow();
+    expect(() => execute(link, { query })).toThrow()
   });
+
+  it('should properly execute async code in token validation and subsequent code in request method', () => {
+    fetch.mockResponse(JSON.stringify({access_token: 'c1b2d3'}), {url: 'http://localhost'})
+    fetch.mockResponse(JSON.stringify({access_token: '12345', expired: true}), {url: 'http://token_from_storage'})
+    const fetchAccessToken = new mockedFetching
+    const refreshLink = new TokenRefreshLink({
+        isTokenValidOrUndefined: async () => {
+          const expToken = await fetch('http://token_from_storage').then(res => {
+            return res.json()
+          })
+
+          if (expToken.expired === true) {
+            return false
+          } else {
+            return true
+          }
+        },
+        fetchAccessToken,
+        handleFetch: () => void 0
+    })
+    const link = ApolloLink.from([
+      refreshLink,
+      mockLink
+    ]);
+    expect(() => execute(link, {query})).not.toThrow()
+    expect(mockedFetching.mock.calls.length).toBe(1)
+  })
+});
 
   // it('should allow fetch to REST endpoint and to apollo-server endpoint', () => {
   //
   // });
-});
+
 
 describe('OperationQueuing', () => {
   it('should construct', () => {
