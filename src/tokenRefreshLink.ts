@@ -10,6 +10,7 @@ import {
 import { OperationQueuing } from './queuing';
 
 export { OperationQueuing, QueuedRequest } from './queuing';
+
 export type FetchAccessToken = (...args: any[]) => Promise<Response>;
 export type HandleFetch<AccessTokenPayloadType> = (accessTokenPayload: AccessTokenPayloadType, operation: Operation) => void;
 export type HandleResponse = (operation: Operation, accessTokenField: string) => any;
