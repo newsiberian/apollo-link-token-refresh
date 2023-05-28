@@ -1,5 +1,8 @@
 # Change log
 
+### 0.6.0
+- `handleFetch` now also can be async
+
 ### 0.5.0
 [BREAKING CHANGES]: Prop `IsTokenValidOrUndefined` now async. You have to modify your callback by making it `async`.
 
