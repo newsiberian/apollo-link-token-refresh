@@ -184,8 +184,7 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
                 }
                 return token;
               })
-              .then((payload) => {
-                this.handleFetch(payload, operation)})
+              .then((payload) => this.handleFetch(payload, operation))
               .catch((error) => this.handleError(error, operation))
               .finally(() => {
                 this.fetching = false;
