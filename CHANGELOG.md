@@ -1,5 +1,13 @@
 # Change log
 
+### 0.5.0
+[BREAKING CHANGES]: Prop `IsTokenValidOrUndefined` now async. You have to modify your callback by making it `async`.
+
+```ts
+isTokenValidOrUndefined: async () => {/* ... */}
+```
+
+
 ### 0.4.0
 [BREAKING CHANGES]: Callbacks `HandleFetch`, `HandleError` and prop `IsTokenValidOrUndefined` now receives `operation` as additional argument
 

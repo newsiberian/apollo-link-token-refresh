@@ -49,7 +49,7 @@ import { TokenRefreshLink } from 'apollo-link-token-refresh';
 
 link: ApolloLink.from([
   new TokenRefreshLink({
-    isTokenValidOrUndefined: () => !isTokenExpired() || typeof getAccessToken() !== 'string',
+    isTokenValidOrUndefined: async () => !isTokenExpired() || typeof getAccessToken() !== 'string',
     fetchAccessToken: () => {
       return fetch(getEndpoint('getAccessTokenPath'), {
         method: 'GET',
@@ -124,11 +124,11 @@ If access token is stored in Redux state, `operation` object allows to reach the
 ```ts
     new TokenRefreshLink({
         // rest omitted for brevity
-        isTokenValidOrUndefined: operation => {
+        isTokenValidOrUndefined: async (operation) => {
             const { getState } = operation.getContext();
             const accessToken = accessTokenSelector(getState());
             // validate access token and return true/false
-        }
+        },
         handleFetch: (accessToken, operation) => {
             const { dispatch } = operation.getContext();
             dispatch(setAccessToken(accessToken));
