@@ -54,4 +54,6 @@ package-lock.json
 dist
 lib
 
+config
+
 .idea

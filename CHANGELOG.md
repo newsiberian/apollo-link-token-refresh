@@ -1,5 +1,8 @@
 # Change log
 
+### 0.6.1
+- inject sources into `sourcesContent` into source maps
+
 ### 0.6.0
 - `handleFetch` now also can be async
 
