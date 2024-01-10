@@ -82,8 +82,8 @@ link: ApolloLink.from([
        // We also don’t want to delete a JWT token from the `localStorage` in this case of course.
        if (
          !navigator.onLine ||
-         (error instanceof TypeError &&
-           error.message === "Network request failed")
+         (err instanceof TypeError &&
+           err.message === "Network request failed")
        ) {
          console.log("Offline -> do nothing 🍵")
        } else {
