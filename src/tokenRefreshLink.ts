@@ -163,7 +163,7 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
     if (typeof forward !== 'function') {
       throw new Error('[Token Refresh Link]: Token Refresh Link is a non-terminating link and should not be the last in the composed chain');
     }
-    
+
     return fromPromise(
       this.isTokenValidOrUndefined(operation).then((tokenValidOrUndefined) => {
         // If token does not exist, which could mean that this is a not registered
@@ -184,12 +184,16 @@ export class TokenRefreshLink<AccessTokenPayloadType = string> extends ApolloLin
                 }
                 return token;
               })
-              .then((payload) => this.handleFetch(payload, operation))
-              .catch((error) => this.handleError(error, operation))
-              .finally(() => {
+              .then((payload) => {
+                this.handleFetch(payload, operation);
                 this.fetching = false;
                 this.queue.consumeQueue();
-              });
+              })
+              .catch((error) => {
+                this.handleError(error, operation);
+                this.fetching = false;
+                this.queue.consumeQueue(error);
+              })
           }
 
           return this.queue.enqueueRequest({

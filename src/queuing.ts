@@ -48,9 +48,10 @@ export class OperationQueuing {
     return requestCopy.observable;
   }
 
-  public consumeQueue(): void {
+  public consumeQueue(err?: Error): void {
     this.queuedRequests.forEach(request => {
-        request.forward(request.operation).subscribe(request.subscriber);
+      if (err) request.subscriber.error(err);
+      else request.forward(request.operation).subscribe(request.subscriber);
     });
 
     this.queuedRequests = [];
