@@ -1,5 +1,8 @@
 # Change log
 
+### 0.7.0
+[BREAKING CHANGES]: Don't attempt to run queued requests if obtaining a new token fails.
+
 ### 0.6.1
 - inject sources into `sourcesContent` into source maps
 
